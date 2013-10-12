@@ -1,0 +1,13 @@
+.DS_Store
+
+Thumbs.db
+
+.swp
+
+.tmp
+
+node_modules
+
+.edpproj
+
+dep
