@@ -13,6 +13,6 @@
     "repository": "git://github.com/zfkun/saber-control.git",
     "bugs": "https://github.com/zfkun/saber-control/issues",
     "dependencies": {
-        "saber-emitter": "0.x"
+        "saber-emitter": "0.3.0"
     }
 }
