@@ -6,8 +6,8 @@
  * @author zfkun(zfkun@msn.com)
  */
 
-define(function (require) {
-    var Emitter = require('saber-emitter');
+define(function ( require ) {
+    var Emitter = require( 'saber-emitter' );
 
     /**
      * 控件基类
@@ -19,25 +19,28 @@ define(function (require) {
      * @fires module:Control#afterinit
      * @param {Object=} options 初始化参数
      */
-    var Control = function (options) {
+    var Control = function ( options ) {
 
         this.children = [];
 
         /**
          * @event module:Control#beforeinit
          */
-        this.emit('beforeinit');
+        this.emit( 'beforeinit' );
 
-        this.init.apply(this, arguments);
+        this.init.apply( this, arguments );
 
         /**
          * @event module:Control#afterinit
          */
-        this.emit('afterinit');
+        this.emit( 'afterinit' );
 
     };
 
     Control.prototype = {
+
+        constructor: Control,
+
         /**
          * 控件类型标识
          * 
@@ -67,7 +70,7 @@ define(function (require) {
          * @protected
          */
         init: function () {
-            throw new Error('not implement init');
+            throw new Error( 'not implement init' );
         },
 
         /**
@@ -78,7 +81,7 @@ define(function (require) {
          * @return {module:Control} 当前实例
          */
         render: function() {
-            throw new Error('not implement render');
+            throw new Error( 'not implement render' );
         },
 
         /**
@@ -91,10 +94,10 @@ define(function (require) {
             /**
              * @event module:Control#dispose
              */
-            this.emit('dispose');
+            this.emit( 'dispose' );
 
             var child;
-            while ((child = this.children.pop())) {
+            while ( ( child = this.children.pop() ) ) {
                 child.dispose();
             }
 
@@ -107,7 +110,7 @@ define(function (require) {
          * @public
          * @param {HTMLElement=} wrap 被添加到的页面元素
          */
-        appendTo: function (wrap) {
+        appendTo: function ( wrap ) {
             this.main = wrap || this.main;
             this.render();
         },
@@ -124,7 +127,7 @@ define(function (require) {
             /**
              * @event module:Control#enable
              */
-            this.emit('enable');
+            this.emit( 'enable' );
         },
 
         /**
@@ -139,7 +142,7 @@ define(function (require) {
             /**
              * @event module:Control#disable
              */
-            this.emit('disable');
+            this.emit( 'disable' );
         },
 
 
@@ -152,11 +155,11 @@ define(function (require) {
          * @return {*} 返回目标属性的值
          * @public
          */
-        get: function(name) {
-            var method = this['get' + lib.pascalize(name)];
+        get: function( name ) {
+            var method = this[ 'get' + lib.pascalize( name ) ];
 
-            if (typeof method === 'function') {
-                return method.call(this);
+            if ( 'function' === typeof method ) {
+                return method.call( this );
             }
 
             return this[name];
@@ -169,16 +172,16 @@ define(function (require) {
          * @param {*} value 属性值
          * @public
          */
-        set: function(name, value) {
-            var method = this['set' + lib.pascalize(name)];
+        set: function( name, value ) {
+            var method = this[ 'set' + lib.pascalize( name ) ];
 
-            if (typeof method === 'function') {
-                return method.call(this, value);
+            if ( 'function' === typeof method ) {
+                return method.call( this, value );
             }
 
             var property = {};
-            property[name] = value;
-            this.setProperties(property);
+            property[ name ] = value;
+            this.setProperties( property );
         },
 
         /**
@@ -186,7 +189,7 @@ define(function (require) {
          * 
          * @param {Object} properties 属性值集合
          */
-        setProperties: function (properties) {
+        setProperties: function ( properties ) {
             // TODO
         },
 
@@ -200,7 +203,7 @@ define(function (require) {
          * @param {string} childName 子控件名
          * @return {module:Control} 获取到的子控件 
          */
-        getChild: function(childName) {
+        getChild: function( childName ) {
             // TODO
         },
 
@@ -210,7 +213,7 @@ define(function (require) {
          * @public
          * @param {HTMLElement} wrap 容器DOM元素
          */
-        initChildren: function(wrap) {
+        initChildren: function( wrap ) {
             // TODO
         },
 
@@ -221,7 +224,7 @@ define(function (require) {
          * @param {module:Control} control 控件实例
          * @param {string=} childName 子控件名
          */
-        addChild: function(control, childName) {
+        addChild: function( control, childName ) {
             // TODO
         },
 
@@ -231,14 +234,14 @@ define(function (require) {
          * @public
          * @param {module:Control} control 子控件实例
          */
-        removeChild: function(control) {
+        removeChild: function( control ) {
             // TODO
         }
 
     };
 
     // 混入 Emitter 支持
-    Emitter.mixin(Control.prototype);
+    Emitter.mixin( Control.prototype );
 
     return Control;
 });
