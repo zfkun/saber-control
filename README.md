@@ -1,7 +1,7 @@
 saber-control
 ===
 
-一个适用于移动端的UI组件库基类。ECOM UI v1.1 规范实现，依赖 [saber-emitter](https://github.com/ecomfe/saber-emitter)
+一个适用于移动端的UI组件库基类。`ECOM UI v1.1`规范实现，依赖 [saber-emitter](https://github.com/ecomfe/saber-emitter)
 
 Usage
 ---
