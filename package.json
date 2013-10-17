@@ -12,6 +12,10 @@
     "license": "BSD",
     "repository": "git://github.com/zfkun/saber-control.git",
     "bugs": "https://github.com/zfkun/saber-control/issues",
+    "devDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-jsdoc": "~0.4.1"
+    },
     "dependencies": {
         "saber-emitter": "0.3.0"
     }

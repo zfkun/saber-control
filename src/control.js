@@ -387,12 +387,13 @@ define(function ( require ) {
 
 
     /**
-     * 生成继承自己的新类
+     * 让传入的子类继承自身
      * 
-     * @return {[type]} [return description]
+     * @public
+     * @param {Function} subClass 子类构造器
      */
     Control.inherits = function ( subClass ) {
-        return inherits( subClass, Control );
+        inherits( subClass, Control );
     };
 
 
@@ -522,6 +523,7 @@ define(function ( require ) {
      * @inner
      * @param {Function} subClass 子类构造器
      * @param {Function} superClass 父类构造器
+     * @return {Function} 实现了继承的子类构造器
      */
     function inherits( subClass, superClass ) {
         var Empty = function () {};
