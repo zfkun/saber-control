@@ -24,6 +24,7 @@ define(function ( require ) {
      * @fires module:Control#afterdispose
      * @fires module:Control#show
      * @fires module:Control#hide
+     * @fires module:Control#propertychange
      * @param {Object} options 初始化配置参数
      */
     var Control = function ( options ) {
@@ -83,7 +84,7 @@ define(function ( require ) {
                 }
             }
 
-            this.setProperties( options );
+            this.setProperties( this.options = options );
         },
 
         /**
@@ -127,10 +128,11 @@ define(function ( require ) {
         /**
          * 创建控件主元素
          * 
+         * @param {Object} options 构造函数传入的配置参数
          * @return {HTMLElement}
          * @protected
          */
-        createMain: function() {
+        createMain: function( options ) {
             return document.createElement('div');
         },
 
@@ -181,7 +183,8 @@ define(function ( require ) {
          * @param {HTMLElement=} wrap 被添加到的页面元素
          */
         appendTo: function ( wrap ) {
-            this.main = wrap || this.main;
+            // this.main = wrap || this.main;
+            wrap.appendChild( this.main );
             this.render();
         },
 
@@ -329,10 +332,52 @@ define(function ( require ) {
          * 批量设置控件的属性值
          * 
          * @param {Object} properties 属性值集合
+         * @fires module:Control#propertychange
          * @public
          */
         setProperties: function ( properties ) {
-            // TODO
+            // 确保只有在渲染以前（`initOptions`调用时）才允许设置id
+            if ( properties.hasOwnProperty( 'id' ) ) {
+                if ( !this.rendered ) {
+                    this.id = properties.id;
+                    delete properties.id;
+                }
+            }
+
+            // 确保几个状态选项值为`boolean`类型
+            // `diabled`, `hidden`
+            [ 'disabled', 'hidden' ].forEach(function ( booleanKey ) {
+                if ( properties.hasOwnProperty( booleanKey ) ) {
+                    properties[ booleanKey ] = !!properties[ booleanKey ];
+                }
+            });
+
+            var changes = {}, hasChanged, oldValue, newValue;
+            for ( var key in properties ) {
+                if ( properties.hasOwnProperty( key ) ) {
+                    oldValue = this[ key ];
+                    newValue = properties[ key ];
+                    
+                    if ( oldValue !== newValue ) {
+                        this[ key ] = newValue;
+
+                        changes[ key ] = {
+                            name: key,
+                            oldValue: oldValue,
+                            newValue: newValue
+                        };
+
+                        hasChanged = true;
+                    }
+                }
+            }
+
+            if ( hasChanged ) {
+                /**
+                 * @event module:Control#propertychange
+                 */
+                this.emit( 'propertychange', changes );
+            }
         },
 
 
