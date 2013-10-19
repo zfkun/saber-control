@@ -180,7 +180,7 @@ define(function ( require ) {
          * 将控件添加到页面元素中
          * 
          * @public
-         * @param {HTMLElement=} wrap 被添加到的页面元素
+         * @param {HTMLElement} wrap 控件要添加到的目标元素
          */
         appendTo: function ( wrap ) {
             // this.main = wrap || this.main;
@@ -300,7 +300,7 @@ define(function ( require ) {
          * @public
          */
         get: function ( name ) {
-            var method = this[ 'get' + lib.pascalize( name ) ];
+            var method = this[ 'get' + toPascalize( name ) ];
 
             if ( 'function' === typeof method ) {
                 return method.call( this );
@@ -546,7 +546,7 @@ define(function ( require ) {
      * 为函数提前绑定参数（柯里化）
      * 
      * @see http://en.wikipedia.org/wiki/Currying
-     * @method module:lib.fn.curry
+     * @inner
      * @param {Function} fn 要绑定的函数
      * @param {...args=} args 函数执行时附加到执行时函数前面的参数
      *
