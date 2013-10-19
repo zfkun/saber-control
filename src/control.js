@@ -7,8 +7,29 @@
  */
 
 define(function ( require ) {
+    var DOM = require( 'saber-dom' );
     var Emitter = require( 'saber-emitter' );
+
     var counter = 0x861005;
+
+
+    /**
+     * 控件库配置数据
+     * 
+     * @inner
+     * @type {Object}
+     */
+    var uiConfig = {
+        // 基于已有的DOM结构创建控件时，
+        // ui控件的html attribute前缀
+        uiPrefix: 'data-ui',
+
+        // 控件的默认class前缀
+        uiClassPrefix: 'ui',
+
+        // 控件的状态class前缀
+        stateClassPrefix: 'state'
+    };
 
     /**
      * 控件基类
@@ -68,7 +89,7 @@ define(function ( require ) {
 
             var key, val;
             for ( key in options ) {
-                if ( !Object.prototype.hasOwnProperty.call( options, key ) ) {
+                if ( !hasOwnProperty.call( options, key ) ) {
                     continue;
                 }
 
@@ -112,6 +133,7 @@ define(function ( require ) {
             }
 
             self.children = [];
+            self.states = {};
 
             self.main = options.main ? options.main : self.createMain();
 
@@ -145,12 +167,35 @@ define(function ( require ) {
          * @fires module:Control#afterrender
          */
         render: function () {
-            throw new Error( 'not implement render' );
+            // throw new Error( 'not implement render' );
+            var rendered = this.rendered;
+
+            if ( !rendered ) {
+                this.rendered = true;
+                this.emit( 'beforerender' );
+
+                if ( !this.options.main
+                    && !document.body.contains( this.main ) ) {
+                    document.body.appendChild( this.main );
+                }
+
+                DOM.addClass(
+                    this.main,
+                    uiConfig.uiClassPrefix
+                    + '-' + this.type.toLowerCase()
+                );
+            }
+
+            this.repaint();
+
+            if ( !rendered ) {
+                this.emit( 'afterrender' );
+            }
         },
 
-        // repaint: function() {
-        //     throw new Error( 'not implement repaint' );  
-        // },
+        repaint: function() {
+            throw new Error( 'not implement repaint' );  
+        },
 
         /**
          * 销毁控件
@@ -197,6 +242,8 @@ define(function ( require ) {
         enable: function () {
             this.disabled = false;
 
+            this.removeState( 'disabled' );
+
             /**
              * @event module:Control#enable
              */
@@ -212,6 +259,8 @@ define(function ( require ) {
         disable: function () {
             this.disabled = true;
 
+            this.addState( 'disabled' );
+
             /**
              * @event module:Control#disable
              */
@@ -225,7 +274,7 @@ define(function ( require ) {
          * @public
          */
         isDisabled: function () {
-            return this.disabled;
+            return this.hasState( 'disabled' );
         },
 
         /**
@@ -247,6 +296,8 @@ define(function ( require ) {
         show: function() {
             this.hidden = false;
 
+            this.removeState( 'hidden' );
+
             /**
              * @event module:Control#show
              */
@@ -262,10 +313,21 @@ define(function ( require ) {
         hide: function() {
             this.hidden = true;
 
+            this.addState( 'hidden' );
+
             /**
              * @event module:Control#hide
              */
             this.emit( 'hide' );
+        },
+
+        /**
+         * 切换控件可见状态
+         * 
+         * @public
+         */
+        toggle: function () {
+            this[ this.isHidden() ? 'show' : 'hide' ]();
         },
 
         /**
@@ -275,7 +337,7 @@ define(function ( require ) {
          * @public
          */
         isHidden: function() {
-            return this.hidden;
+            return this.hasState( 'hidden' );
         },
 
         /**
@@ -423,12 +485,95 @@ define(function ( require ) {
          */
         removeChild: function ( control ) {
             // TODO
+        },
+
+
+        /**
+         * 添加控件状态
+         * 
+         * @public
+         * @param {string} state 状态名
+         */
+        addState: function ( state ) {
+            if ( this.hasState( state ) ) return;
+
+            this.states[ state ] = true;
+            
+            DOM.addClass(
+                this.main,
+                uiConfig.uiClassPrefix
+                + '-' + this.type.toLowerCase()
+                + '-' + state
+            );
+
+            var properties = {};
+            properties[ state ] = true;
+            this.setProperties( properties );
+        },
+
+        /**
+         * 移除控件状态
+         * 
+         * @public
+         * @param {string} state 状态名
+         */
+        removeState: function ( state ) {
+            if ( !this.hasState( state ) ) return;
+            
+            delete this.states[ state ];
+
+            DOM.removeClass(
+                this.main,
+                uiConfig.uiClassPrefix
+                + '-' + this.type.toLowerCase()
+                + '-' + state
+            );
+
+            var properties = {};
+            properties[ state ] = false;
+            this.setProperties( properties );
+        },
+
+        /**
+         * 切换控件指定状态
+         * 
+         * @public
+         * @param {string} state 状态名
+         */
+        toggleState: function ( state ) {
+            this[
+                this.hasState( state )
+                ? 'removeState'
+                : 'addState'
+            ]( state );
+        },
+
+        /**
+         * 判断控件是否处于指定状态
+         * 
+         * @public
+         * @param {string} state 状态名
+         * @return {boolean}
+         */
+        hasState: function( state ) {
+            return !!this.states[ state ];
         }
 
     };
 
     // 混入 Emitter 支持
     Emitter.mixin( Control.prototype );
+
+
+    /**
+     * 配置控件库全局配置
+     * 
+     * @public
+     * @param {Object} info 控件库配置信息对象
+     */
+    Control.config = function( info ) {
+        extend( uiConfig, info );
+    };
 
 
     /**
@@ -440,6 +585,35 @@ define(function ( require ) {
     Control.inherits = function ( subClass ) {
         inherits( subClass, Control );
     };
+
+
+
+
+    var toString = Object.prototype.toString;
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+    /**
+     * 扩展对象
+     * 
+     * @inner
+     * @param {Object} target 被扩展的目标对象
+     * @param {Object} source 扩展的源对象
+     * 
+     * @return {Object} 被扩展后的 `target` 对象
+     */
+    function extend( target, source ) {
+        for ( var name in source ) {
+            if ( hasOwnProperty.call( source, name ) ) {
+                if ( isObject( target[ name ] ) ) {
+                    extend( target[ name ], source[ name ] );
+                }
+                else {
+                     target[ name ] = source[ name ];
+                }
+            }
+        }
+        return target;
+    }
 
 
     /**
@@ -475,7 +649,7 @@ define(function ( require ) {
      * @return {boolean}
      */
     function isString( obj ) {
-        return '[object String]' === Object.prototype.toString.call( obj );
+        return '[object String]' === toString.call( obj );
     }
 
     /**
@@ -486,8 +660,20 @@ define(function ( require ) {
      * @return {boolean}
      */
     function isFunction( obj ) {
-        return '[object Function]' === Object.prototype.toString.call( obj );
+        return '[object Function]' === toString.call( obj );
     }
+
+    /**
+     * 判断是否为对象
+     * 
+     * @inner
+     * @param {*} obj 目标对象
+     * @return {boolean}
+     */
+    function isObject( obj ) {
+        return '[object Object]' === toString.call( obj );
+    }
+
 
 
 
