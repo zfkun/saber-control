@@ -161,7 +161,6 @@ define(function ( require ) {
         /**
          * 渲染控件
          * 
-         * @abstract
          * @protected
          * @fires module:Control#beforerender
          * @fires module:Control#afterrender
@@ -172,6 +171,10 @@ define(function ( require ) {
 
             if ( !rendered ) {
                 this.rendered = true;
+
+                /**
+                 * @event module:Control#beforerender
+                 */
                 this.emit( 'beforerender' );
 
                 if ( !this.options.main
@@ -189,12 +192,33 @@ define(function ( require ) {
             this.repaint();
 
             if ( !rendered ) {
+                /**
+                 * @event module:Control#afterrender
+                 */
                 this.emit( 'afterrender' );
             }
         },
 
-        repaint: function() {
-            throw new Error( 'not implement repaint' );  
+        /**
+         * 重新渲染视图
+         * 
+         * 首次渲染时, 不传入变更属性集合参数
+         * @param {Object=} changes 变更过的属性的集合
+         * @protected
+         */
+        repaint: function( changes ) {
+            // throw new Error( 'not implement repaint' );
+            var method;
+
+            if ( changes && changes.hasOwnProperty( 'disabled' ) ) {
+                method = this.diabled ? 'addState' : 'removeState';
+                this[ method ]( 'disabled' );
+            }
+
+            if ( changes && changes.hasOwnProperty( 'hidden' ) ) {
+                method = this.hidden ? 'addState' : 'removeState';
+                this[ method ]( 'hidden' );
+            }
         },
 
         /**
@@ -230,6 +254,17 @@ define(function ( require ) {
         appendTo: function ( wrap ) {
             // this.main = wrap || this.main;
             wrap.appendChild( this.main );
+            this.render();
+        },
+
+        /**
+         * 将控件添加到页面的某个元素之前
+         * 
+         * @param {HTMLElement} reference 控件要添加到之前的目标元素
+         * @public
+         */
+        insertBefore: function( reference ) {
+            reference.parentNode.insertBefore( this.main, reference );
             this.render();
         },
 
@@ -435,6 +470,11 @@ define(function ( require ) {
             }
 
             if ( hasChanged ) {
+                // render后的属性变化，可能会引起重绘
+                if ( this.rendered ) {
+                    this.repaint( changes );
+                }
+
                 /**
                  * @event module:Control#propertychange
                  */
