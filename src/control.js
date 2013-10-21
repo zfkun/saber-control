@@ -7,6 +7,7 @@
  */
 
 define(function ( require ) {
+    var Lang = require( 'saber-lang' );
     var DOM = require( 'saber-dom' );
     var Emitter = require( 'saber-emitter' );
 
