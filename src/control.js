@@ -89,7 +89,7 @@ define(function ( require ) {
 
             var key, val;
             for ( key in options ) {
-                if ( !hasOwnProperty.call( options, key ) ) {
+                if ( !options.hasOwnProperty( key ) ) {
                     continue;
                 }
 
@@ -612,61 +612,14 @@ define(function ( require ) {
      * @param {Object} info 控件库配置信息对象
      */
     Control.config = function( info ) {
-        extend( uiConfig, info );
-    };
-
-
-    /**
-     * 让传入的子类继承自身
-     * 
-     * @public
-     * @param {Function} subClass 子类构造器
-     */
-    Control.inherits = function ( subClass ) {
-        inherits( subClass, Control );
+        Lang.extend( uiConfig, info );
     };
 
 
 
 
     var toString = Object.prototype.toString;
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-    /**
-     * 扩展对象
-     * 
-     * @inner
-     * @param {Object} target 被扩展的目标对象
-     * @param {Object} source 扩展的源对象
-     * 
-     * @return {Object} 被扩展后的 `target` 对象
-     */
-    function extend( target, source ) {
-        for ( var name in source ) {
-            if ( hasOwnProperty.call( source, name ) ) {
-                if ( isObject( target[ name ] ) ) {
-                    extend( target[ name ], source[ name ] );
-                }
-                else {
-                     target[ name ] = source[ name ];
-                }
-            }
-        }
-        return target;
-    }
-
-
-    /**
-     * 数组切片方法
-     * 
-     * @inner
-     * @param {Array} array 输入数组或类数组
-     * @param {number} startIndex 切片的开始索引
-     * @param {number} endIndex 切片的结束索引
-     * 
-     * @return {Array} 新的数组
-     */
-    var slice = generic( Array.prototype.slice );
 
 
     /**
@@ -762,71 +715,12 @@ define(function ( require ) {
      * 
      * @return {Function} 静态化包装后方法
      */
-    function generic( method ) {
-        return function () {
-            return Function.call.apply( method, arguments );
-        };
-    }
+    // function generic( method ) {
+    //     return function () {
+    //         return Function.call.apply( method, arguments );
+    //     };
+    // }
 
-    /** 
-     * 为函数提前绑定参数（柯里化）
-     * 
-     * @see http://en.wikipedia.org/wiki/Currying
-     * @inner
-     * @param {Function} fn 要绑定的函数
-     * @param {...args=} args 函数执行时附加到执行时函数前面的参数
-     *
-     * @return {Function} 封装后的函数
-     */
-    function curry( fn ) {
-        var args = slice( arguments, 1 );
-        return function () {
-            return fn.apply(
-                this, args.concat( slice( arguments ) )
-            );
-        };
-    }
-
-
-    /**
-     * 为类型构造器建立继承关系
-     * 
-     * @inner
-     * @param {Function} subClass 子类构造器
-     * @param {Function} superClass 父类构造器
-     * @return {Function} 实现了继承的子类构造器
-     */
-    function inherits( subClass, superClass ) {
-        var Empty = function () {};
-        Empty.prototype = superClass.prototype;
-        var selfPrototype = subClass.prototype;
-        var proto = subClass.prototype = new Empty();
-
-        for (var key in selfPrototype) {
-            proto[key] = selfPrototype[key];
-        }
-
-        proto.constructor = subClass;
-        proto.parent = curry( parent, superClass );
-        subClass.superClass = superClass.prototype;
-
-        return subClass;
-    }
-
-    /**
-     * 调用父类方法
-     * 
-     * @inner
-     * @param {Class} superClass 父类
-     * @param {string} methodName 父类方法名
-     */
-    function parent( superClass, methodName ) {
-        var method = superClass.prototype[ methodName ];
-        if ( method ) {
-            return method.apply( this, [].slice.call( arguments, 2 ) );
-        }
-        throw new Error( 'parent Class has no method named ' + methodName );
-    }
 
     return Control;
 });
