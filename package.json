@@ -1,0 +1,18 @@
+{
+    "name": "saber-control",
+    "version": "0.1.0",
+    "description": "SaberUI的控件基类",
+    "main": "main",
+    "maintainers": [
+        { "name": "zfkun", "email": "zfkun@msn.com" }
+    ],
+    "dependencies": {
+        "saber-lang": "~0.2.0",
+        "saber-emitter": "~0.3.0",
+        "saber-dom": "~0.3.0",
+        "saber-ui": "~0.1.0"
+    },
+    "license": "BSD",
+    "repository": "git://github.com/zfkun/saber-control.git",
+    "bugs": "https://github.com/zfkun/saber-control/issues"
+}
